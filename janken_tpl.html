@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <script src="js/jquery-2.1.3.min.js"></script>
+  <link rel="stylesheet" href="css/sample.css">
+  <link rel="shortcut icon" href="favicon.ico">
+  <title>じゃんけんまっしーん</title>
+</head>
+
+<body>
+
+  <header>
+    <img src="img/title.png" alt="じゃんけんまっしーん">
+  </header>
+
+  <main>
+
+    <!-- <div>
+      <p id="konti">こんにちは</p>
+      <button>ネームエントリー</button>
+      <div id="entry"></div>
+    </div> -->
+
+
+    <div>
+      <table>
+        <tr>
+          <td>
+            コインの枚数は「<span id="idcoin">コイン</span>」枚です。
+          </td>
+          <td>
+            クレジットは「<span id="idincoin">クレジット</span>」枚です。
+          </td>
+
+        </tr>
+      </table>
+    </div>
+
+    <table id="sousa">
+      <tr>
+        <td id="insertacoin">
+          <img src="img/insertacoin.png" alt="" width="300">
+        </td>
+        <td ID="kankin">
+          <img src="img/payout.png" alt="" width="300">
+        </td>
+      </tr>
+      <tr>
+        <td id="jan" colspan="2"><img src="img/go.png" alt="" width="300"></td>
+      </tr>
+    </table>
+
+    <div>
+      <table>
+        <th>
+        <td id="pc_hands_area">
+          <span id="pc_hands"></span>
+        </td>
+        </th>
+      </table>
+    </div>
+
+    <table class="btn">
+      <tr>
+        <td id="gu_btn"><img src="img/gu-1.png" alt=""></td>
+        <td id="cho_btn"><img src="img/cho-1.png" alt=""></td>
+        <td id="par_btn"><img src="img/par-1.png" alt=""></td>
+      </tr>
+      </ul>
+
+      <div id="judgment"></div>
+
+      <audio id="au01jan" src="audio/01-janken.mp3"></audio>
+      <audio id="au02kati" src="audio/02-pon-kati.mp3"></audio>
+      <audio id="au03make" src="audio/03-pon-make.mp3"></audio>
+      <audio id="au04aiko" src="audio/04-pon-aiko.mp3"></audio>
+      <audio id="au05kati2" src="audio/05-sho-kati.mp3"></audio>
+      <audio id="au06make2" src="audio/06-sho-make.mp3"></audio>
+      <audio id="au07aiko2" src="audio/07-sho-aiko.mp3"></audio>
+      <audio id="au08coin" src="audio/ext.mp3"></audio>
+      <audio id="au09gameover" src="audio/gameover.mp3"></audio>
+      <audio id="au10insert" src="audio/insert.mp3"></audio>
+      <!-- 音読：https://ondoku3.com/ja/ -->
+      <!-- 効果音：https://arspark.jp/material/game/ -->
+
+  </main>
+
+  <footer></footer>
+  <script>
+    //じゃんけん用のSCRIPTを書いてください
+    // ネームエントリー欄を作ってみる。
+    // https://developer.mozilla.org/ja/docs/Learn_web_development/Core/Scripting/Strings
+    // const button = document.querySelector("button");
+    //
+    // function entry() {
+    //  const name = prompt("あなたの名前は?");
+    //  const entry = document.querySelector("#entry");
+    //  entry.textContent = `${name} さん、こんにちは。はじめまして！`;
+    //}
+    //
+    //  button.addEventListener("click", entry);
+
+    // 「coin」は払い出されたコイン。初期は１。
+    // 「incoin」は内部に蓄積されたコイン。いわゆる「クレジット」。初期は0。
+    // 変数を出力する方法として、「document.getElmentByID」を使用してみた。
+    // （案外ここが難しかった。）
+
+    let coin = 1;  //初期コイン　1枚
+    let incoin = 0;  //内部クレジット　0枚
+    let aiko = 0; //あいこフラグ 0=あいこじゃない　1=あいこ　勝敗がついたらリセットする。
+    let goflg = 0; //じゃんけんをするモードになっているか。0=なっていない、1=なっている。
+
+    document.getElementById('idcoin').textContent = coin; //コイン枚数表示
+    document.getElementById('idincoin').textContent = incoin;  //クレジット数表示
+
+    //coinをエントリーする
+    if (goflg == 0) {
+      $("#insertacoin").on("click", function () {
+        if (coin < 1) {
+          alert("コインがないよ！");
+          return;
+        }
+        coin = coin - 1;
+        incoin = incoin + 1;
+        $("#au10insert")[0].play();
+        document.getElementById('idcoin').textContent = coin; //コイン枚数表示
+        document.getElementById('idincoin').textContent = incoin;  //クレジット数表示
+      });
+    }
+
+    // コインを換金する
+    if (goflg == 0) {
+      $("#kankin").on("click", function () {
+        if (incoin < 1) {
+          alert("クレジットがないよ。");
+          return;
+        }
+        coin = coin + incoin;
+        incoin = 0;
+        $("#au08coin")[0].play();
+        document.getElementById('idcoin').textContent = coin; //コイン枚数表示
+        document.getElementById('idincoin').textContent = incoin;  //クレジット数表示
+
+      });
+    }
+
+    // じゃんけんを実行する
+    if (goflg == 0) {
+      $("#jan").on("click", function () {
+        if (incoin < 1) {
+          alert("クレジットがないよ。コインを投入してね。");
+          return;
+        }
+        $("#au01jan")[0].play();
+        goflg = 1;
+        document.getElementById('idgoflg').textContent = goflg;  //クレジット数表示
+      })
+    }
+
+    $("#gu_btn").on("click", function () {
+      const r = Math.ceil(Math.random() * 3); //コンピュータの手。1~3どれか一つの数字　１をグー、２をチョキ、３をパーとする。
+      if (goflg == 0 && incoin < 1) {
+        alert("最初にコインを投入してください。");
+        return;
+      }
+      if (goflg == 0) {
+        alert("クレジットを払い出すか、じゃんけんを押してください。");
+        return;
+      }
+      if (r == 1) {
+        $("#judgment").html("あいこ！");
+        $("#pc_hands").html('<img src="img/gu-2.png" alt = "gu">');
+        if (aiko == 1) {
+          $("#au07aiko2")[0].play();
+        } else {
+          $("#au04aiko")[0].play();
+        }
+        aiko = 1;
+      }
+      if (r == 2) {
+        $("#judgment").html("勝ち！");
+        $("#pc_hands").html('<img src="img/cho-2.png" alt = "cho">');
+        incoin *= 2;
+        if (aiko == 1) {
+          $("#au05kati2")[0].play();
+        } else {
+          $("#au02kati")[0].play();
+        }
+        aiko = 0;
+        goflg = 0;
+      }
+      if (r == 3) {
+        $("#judgment").html("あなたの負け！");
+        $("#pc_hands").html('<img src="img/par-2.png" alt = "par">');
+
+        if (aiko == 1) {
+          $("#au06make2")[0].play();
+        } else {
+          $("#au03make")[0].play();
+        }
+        aiko = 0;
+        incoin = 0;
+        goflg = 0;
+      }
+      document.getElementById('idcoin').textContent = coin; //コイン枚数表示
+      document.getElementById('idincoin').textContent = incoin;  //クレジット数表示
+
+      if (coin < 1 && incoin < 1) {
+        goflg = 0;
+        setTimeout(() => {
+          $("#au09gameover")[0].play();
+          alert("ゲームオーバー！");
+        }, 2000);
+        //        $("#konti").html("ゲームオーバーです。");
+      }
+    });
+
+    $("#cho_btn").on("click", function () {
+      const r = Math.ceil(Math.random() * 3); //コンピュータの手。1~3どれか一つの数字　１をグー、２をチョキ、３をパーとする。
+      if (goflg == 0 && incoin < 1) {
+        alert("最初にコインを投入してください。");
+        return;
+      }
+      if (goflg == 0) {
+        alert("クレジットを払い出すか、じゃんけんを押してください。");
+        return;
+      }
+      if (r == 1) {
+        $("#judgment").html("あなたの負け！");
+        $("#pc_hands").html('<img src="img/gu-2.png" alt = "gu">');
+        if (aiko == 1) {
+          $("#au06make2")[0].play();
+        } else {
+          $("#au03make")[0].play();
+        }
+        incoin = 0;
+        goflg = 0;
+        aiko = 0;
+      }
+      if (r == 2) {
+        $("#judgment").html("あいこ！");
+        $("#pc_hands").html('<img src="img/cho-2.png" alt = "cho">');
+        if (aiko == 1) {
+          $("#au07aiko2")[0].play();
+        } else {
+          $("#au04aiko")[0].play();
+        }
+        aiko = 1;
+      }
+      if (r == 3) {
+        $("#judgment").html("勝ち！");
+        $("#pc_hands").html('<img src="img/par-2.png" alt = "par">');
+        incoin *= 2;
+        if (aiko == 1) {
+          $("#au05kati2")[0].play();
+        } else {
+          $("#au02kati")[0].play();
+        }
+        aiko = 0;
+        goflg = 0;
+      }
+      document.getElementById('idcoin').textContent = coin; //コイン枚数表示
+      document.getElementById('idincoin').textContent = incoin;  //クレジット数表示
+
+      if (coin < 1 && incoin < 1) {
+        goflg = 0;
+        setTimeout(() => {
+          $("#au09gameover")[0].play();
+          alert("ゲームオーバー！");
+        }, 2000);
+        //        $("#konti").html("ゲームオーバーです。");
+      }
+    });
+    $("#par_btn").on("click", function () {
+      const r = Math.ceil(Math.random() * 3); //コンピュータの手。1~3どれか一つの数字　１をグー、２をチョキ、３をパーとする。
+      if (goflg == 0 && incoin < 1) {
+        alert("最初にコインを投入してください。");
+        return;
+      }
+      if (goflg == 0) {
+        alert("クレジットを払い出すか、じゃんけんを押してください。");
+        return;
+      }
+      if (r == 1) {
+        $("#judgment").html("勝ち！");
+        $("#pc_hands").html('<img src="img/gu-2.png" alt = "gu">');
+        incoin *= 2;
+        if (aiko == 1) {
+          $("#au05kati2")[0].play();
+        } else {
+          $("#au02kati")[0].play();
+        }
+        aiko = 0;
+        goflg = 0;
+      }
+      if (r == 2) {
+        $("#judgment").html("あなたの負け！");
+        $("#pc_hands").html('<img src="img/cho-2.png" alt = "cho">');
+        if (aiko == 1) {
+          $("#au06make2")[0].play();
+        } else {
+          $("#au03make")[0].play();
+        }
+        incoin = 0;
+        goflg = 0;
+        aiko = 0;
+      }
+      if (r == 3) {
+        $("#judgment").html("あいこ！");
+        $("#pc_hands").html('<img src="img/par-2.png" alt = "par">');
+        if (aiko == 1) {
+          $("#au07aiko2")[0].play();
+        } else {
+          $("#au04aiko")[0].play();
+        }
+        aiko = 1;
+      }
+      document.getElementById('idcoin').textContent = coin; //コイン枚数表示
+      document.getElementById('idincoin').textContent = incoin;  //クレジット数表示
+
+      if (coin < 1 && incoin < 1) {
+        goflg = 0;
+        setTimeout(() => {
+          $("#au09gameover")[0].play();
+          alert("ゲームオーバー！");
+        }, 2000);
+        //        $("#konti").html("ゲームオーバーです。");
+      }
+    });
+  </script>
+</body>
+
+</html>
